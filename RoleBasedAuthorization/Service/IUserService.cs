@@ -14,6 +14,8 @@ namespace RoleBasedAuthorization.Service
 
         User EditUser(User user);
 
-        void DeleteUser(User user);        
+        void DeleteUser(User user);
+
+        object CheckExistProperties(string email, string username, string phone);
     }
 }

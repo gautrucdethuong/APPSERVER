@@ -1,4 +1,5 @@
 ﻿using RoleBasedAuthorization.Data;
+using RoleBasedAuthorization.Helper;
 using RoleBasedAuthorization.Helpers;
 using RoleBasedAuthorization.Model;
 using RoleBasedAuthorization.Service;
@@ -13,6 +14,7 @@ namespace RoleBasedAuthorization.Reponsitory
     {      
         private DBContext db;
        
+
         public UserReponsitory(DBContext dbContext)
         {          
             db = dbContext;          
@@ -42,6 +44,7 @@ namespace RoleBasedAuthorization.Reponsitory
             if (edituser != null)
             {
                 db.Users.Update(edituser);
+                edituser.username = user.username;
                 edituser.fullname = user.fullname;
                 edituser.email = user.email;
                 edituser.password = user.password;
@@ -61,6 +64,30 @@ namespace RoleBasedAuthorization.Reponsitory
             var user = db.Users.Find(id);
             return user.WithoutPassword();
         }
-                   
+
+
+
+        // check exist properties
+        public object CheckExistProperties(string email, string username, string phone)
+        {
+            string message = "Input data invalid.";
+
+            if (db.Users.Any(x => x.username == username))
+            {
+                return JsonResultResponse.ResponseFail(message);
+                 
+            }
+            else if (db.Users.Any(x => x.email == email))
+            {               
+                return JsonResultResponse.ResponseFail(message); 
+                //showMessage
+            }
+            else if (db.Users.Any(x => x.phone == phone))
+            {              
+                return JsonResultResponse.ResponseFail(message);
+            }
+            return ""; 
+            
+        }    
     }
 }

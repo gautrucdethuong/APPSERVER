@@ -42,14 +42,14 @@ namespace RoleBasedAuthorization.Reponsitory
             var key = Encoding.UTF8.GetBytes(Constant.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                /*Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.user_id.ToString()),
                     new Claim(ClaimTypes.Role, user.role),
                     new Claim("Fullname", user.fullname),
                     new Claim("Username", user.username),
                     new Claim("Email", user.email),
-                }),
+                }),*/
 
                 Expires = DateTime.UtcNow.AddHours(5),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

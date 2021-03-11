@@ -20,11 +20,12 @@ namespace RoleBasedAuthorization.Helper
             return new { Result = "Failed.", Message = message};
         }
 
+
         public static object ReponseError(string message = null, object reponse = null)
         {
             return new { Result = "Error.", Message = message, Data = reponse };
         }
-        
+
     }
 }
 
