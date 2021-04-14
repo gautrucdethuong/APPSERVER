@@ -18,29 +18,8 @@ namespace RoleBasedAuthorization.Helpers
         {
             if (user == null) return null;
 
-            user.password = null;
+            //user.user_password = null;
             return user;
-        }
-
-
-
-
-
-
-        /*if (ModelState.IsValid)
-            {
-                if (db.Users.Any(x => x.username == user.username))
-                {
-                    return base.Content("Username " + user.username + " is already exist. Please enter a different username.");
-                }
-                else if (db.Users.Any(x => x.email == user.email))
-                {
-                    return base.Content("Email " + user.email + " is already exist. Please enter a different email.");
-                }
-                else if (db.Users.Any(x => x.phone == user.phone))
-                {
-                    return base.Content("Number phone " + user.phone + " is already exist. Please enter a different number phone.");
-                }
-            }*/
+        }      
     }
 }

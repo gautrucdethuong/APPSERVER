@@ -14,6 +14,12 @@ namespace RoleBasedAuthorization.Service
 
         User EditUser(User user);
 
-        void DeleteUser(User user);        
+        void DeleteUser(User user);
+
+        IEnumerable<User> searchUser(string name, string phone);
+
+        IEnumerable<User> filterUserByRole(string role);
+
+        bool CheckExistProperties(string email, string username, string phone);
     }
 }

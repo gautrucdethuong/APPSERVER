@@ -12,20 +12,18 @@ namespace RoleBasedAuthorization.Controllers
     public class UserController : Controller
     {
         
-        private IUserService userService;       
-
+        private readonly IUserService _user;       
 
         public UserController(IUserService iuser)
         {
-            userService = iuser;           
+            _user = iuser;           
         }
        
-        //get all list, allow only admin get alllist
-        [AllowAnonymous]        
+        //get all list, allow only admin get alllist        
         [HttpGet]
         public JsonResult ListUser()
         {
-            var users = userService.getAllUser();
+            var users = _user.getAllUser();
             return Json(JsonResultResponse.ResponseSuccess(users));
          
         }
@@ -35,51 +33,84 @@ namespace RoleBasedAuthorization.Controllers
         [HttpGet("{id}")]
         public JsonResult GetUser(int id)
         {
-            var user = userService.GetUser(id);
+            var user = _user.GetUser(id);
 
             if (user == null)
-                return Json(JsonResultResponse.ResponseFail($"User with id {id} was not found."));
+                return Json(JsonResultResponse.ResponseFail("No matching results were found."));
             
             return Json(JsonResultResponse.ResponseSuccess(user));
             
         }
 
-
         //edit
-        [HttpPatch("{id}")]      
+        [HttpPut("{id}")]      
         public JsonResult EditUser(int id, User u)
         {
-            var checkexist = userService.GetUser(id);
+            var checkexist = _user.GetUser(id);
 
             if (checkexist != null)
             {
                 u.user_id = checkexist.user_id;
-                userService.EditUser(u);
+                _user.EditUser(u);
             }
             return Json(JsonResultResponse.ResponseChange("Update Successed."));
         }
 
-
         //create
         [HttpPost, AllowAnonymous]       
         public JsonResult CreateUser(User user)
-        {           
-                userService.CreateUser(user);
-                return Json(JsonResultResponse.ResponseSuccess(user));
+        {
+            if (ModelState.IsValid)
+            {
+                if (_user.CheckExistProperties(user.user_email, user.user_username, user.user_phone) == true)
+                {
+                    _user.CreateUser(user);
+                    return Json(JsonResultResponse.ResponseSuccess(user));
+                }
+            }
+            return Json(JsonResultResponse.ResponseFail("Input data already exists."));
         }
+
 
         //delete
         [HttpDelete("{id}")]
         public JsonResult DeleteUser(int id)
         {
-            var user = userService.GetUser(id);
+            var user = _user.GetUser(id);
             if (user == null)
             {               
-                return Json(JsonResultResponse.ResponseFail($" User with id {id} was not found."));
+                return Json(JsonResultResponse.ResponseFail("No matching results were found."));
             }
-            userService.DeleteUser(user);
+            _user.DeleteUser(user);
             return Json(JsonResultResponse.ResponseChange("Delete successed."));
-        }      
+        }
+        
+
+        // search by phone number or fullname
+        [HttpGet("search"), AllowAnonymous]
+        public JsonResult SearchUser(string name, string phone)
+        {
+            var search = _user.searchUser(name, phone);
+
+            if (search == null)
+                return Json(JsonResultResponse.ResponseFail("No matching results were found."));
+
+            return Json(JsonResultResponse.ResponseSuccess(search));
+        }
+
+
+        // filter by role
+        [HttpGet("filter"), AllowAnonymous]
+        public JsonResult filterUserByRole(string role)
+        {
+            var search = _user.filterUserByRole(role);
+
+            if (search == null)
+            {
+                return Json(JsonResultResponse.ResponseFail("No matching results were found."));
+            }
+            return Json(JsonResultResponse.ResponseSuccess(search));
+        }
 
     }
 }
