@@ -58,7 +58,7 @@ namespace RoleBasedAuthorization.Controllers
         }
 
         //create
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
         public JsonResult CreateProduct(Product product)
         {
             if (ModelState.IsValid)

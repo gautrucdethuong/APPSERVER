@@ -2,21 +2,21 @@
 
 namespace RoleBasedAuthorization.Migrations
 {
-    public partial class Addrefreshtokeninuser : Migration
+    public partial class UpdatetbCart : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "user_refreshToken",
-                table: "Users",
+                name: "product_image",
+                table: "Carts",
                 nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "user_refreshToken",
-                table: "Users");
+                name: "product_image",
+                table: "Carts");
         }
     }
 }

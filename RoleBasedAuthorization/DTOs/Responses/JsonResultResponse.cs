@@ -23,7 +23,7 @@ namespace RoleBasedAuthorization.Helper
         {
             return new { Result = "Error.", Message = message, Data = reponse };
         }
-        
+
     }
 }
 

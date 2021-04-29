@@ -1,4 +1,5 @@
 ﻿using RoleBasedAuthorization.Data;
+using RoleBasedAuthorization.Helper;
 using RoleBasedAuthorization.Service;
 using System;
 using System.Linq;
@@ -10,23 +11,19 @@ namespace RoleBasedAuthorization.Reponsitory
 {
     public class OTPSenderReponsitory : IOTPSenderService
     {
-        private DBContext db;
+        private readonly DBContext db;
 
         public OTPSenderReponsitory(DBContext dBContext)
         {
             db = dBContext;
         }
 
-
         public bool OTPSenderUser(string phone)
         {
             
-            //Account SID and Auth Token 
-            const string accountSid = "AC10b661551dca73f562a3a047523b3217";
-            const string authToken = "b6cf00ac221fa7b4a203d205ef250396";
-           
-            TwilioClient.Init(accountSid, authToken);
-            int otp = GenerationOTP();
+            TwilioClient.Init(Constant.accountSid, Constant.authToken);
+
+            int otp = GenerationOTP.GenerationRandomOTP();
             // check phone exist in db
             var entity = db.Users.FirstOrDefault(item => item.user_phone == phone);
 
@@ -38,9 +35,9 @@ namespace RoleBasedAuthorization.Reponsitory
                 // create new password send user
                 // Send a text message
                     MessageResource.Create(
-                        body: otp.ToString() + " (ma OTP Application se het han sau 5 phut). Luu y: Tuyet doi khong cung cap ma OTP cua ban vi bat cu ly do gi.",
-                        from: new Twilio.Types.PhoneNumber("+17015994809"),
-                        to: new Twilio.Types.PhoneNumber("+840832511369")
+                        body: otp.ToString() + Constant.OPTMessage,
+                        from: new Twilio.Types.PhoneNumber(Constant.contactSystems),
+                        to: new Twilio.Types.PhoneNumber(Constant.contactCustomer)
                     );
                     return true;
                 }
@@ -56,10 +53,8 @@ namespace RoleBasedAuthorization.Reponsitory
         public bool VerificationOTP(string otp)
         {
             //Account SID and Auth Token at twilio
-            const string accountSid = "AC10b661551dca73f562a3a047523b3217";
-            const string authToken = "b6cf00ac221fa7b4a203d205ef250396";
+            TwilioClient.Init(Constant.accountSid, Constant.authToken);
 
-            TwilioClient.Init(accountSid, authToken);
             string randompassword = CreateRandomPassword();
 
             // check opt exist in database              
@@ -74,8 +69,8 @@ namespace RoleBasedAuthorization.Reponsitory
                     // Send a text message
                     MessageResource.Create(
                         body: "Your new password is: " + randompassword.ToString(),
-                        from: new Twilio.Types.PhoneNumber("+17015994809"),
-                        to: new Twilio.Types.PhoneNumber("+840832511369")
+                        from: new Twilio.Types.PhoneNumber(Constant.contactSystems),
+                        to: new Twilio.Types.PhoneNumber(Constant.contactCustomer)
                     );
                     return true;
                 }
@@ -85,32 +80,11 @@ namespace RoleBasedAuthorization.Reponsitory
                 }                                       
         }
 
-        // generation random otp
-        private int GenerationOTP()
-        {        
-            try
-            {
-                int min = 100000;
-                int max = 999999;
-                int otp = 0;
-
-                Random rdm = new Random();
-                otp = rdm.Next(min, max);
-                return otp;
-                
-            }
-            catch (Exception)
-            {
-                throw new Exception("Generation OTP failed.");
-            }
-        }
-
-
         //random password is 8 character  
         private string CreateRandomPassword(int length = 8)
         {
             // Create a string of characters, numbers that allowed in the password  
-            string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            string validChars = Constant.randomString;
             Random random = new Random();
 
             // Select one random character at a time from the string  

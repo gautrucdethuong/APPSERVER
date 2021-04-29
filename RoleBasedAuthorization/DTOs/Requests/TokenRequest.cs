@@ -8,10 +8,11 @@ namespace RoleBasedAuthorization.DTOs.Requests
 {
     public class TokenRequest
     {
-        //[Required]
+        [Required]
         public string Token { get; set; }
 
         [Required]
         public string RefreshToken { get; set; }
+
     }
 }

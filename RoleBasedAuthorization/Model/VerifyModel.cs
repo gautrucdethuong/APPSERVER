@@ -8,7 +8,11 @@ namespace RoleBasedAuthorization.Model
 {
     public class VerifyModel
     {
-        [Required]
+
         public string otp { get; set; }
+
+        [Required]
+        public int UserId { get; set; }
+
     }
 }

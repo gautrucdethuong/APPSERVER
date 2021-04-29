@@ -70,7 +70,7 @@ namespace RoleBasedAuthorization.Controllers
                     return Json(JsonResultResponse.ResponseSuccess(review));
                 }                                
             }
-            return Json(JsonResultResponse.ResponseFail("Input data already exists."));
+            return Json(JsonResultResponse.ResponseFail("User reviewed. Not Comment"));
         }
 
 
@@ -87,10 +87,11 @@ namespace RoleBasedAuthorization.Controllers
             return Json(JsonResultResponse.ResponseChange("Delete successed."));
         }
 
-        [HttpGet("getIdProduct")]
-        public JsonResult GetReviewByIdProduct(int Id_Product)
+        //[HttpGet("getIdProduct")]
+        [HttpPost("GetReviewByIdProduct")]
+        public JsonResult GetReviewByIdProduct(Review review)
         {
-            var search = _review.GetReviewByIdProduct(Id_Product);
+            var search = _review.GetReviewByIdProduct(review.ProductId);
 
             if (search == null)
             {

@@ -10,8 +10,8 @@ using RoleBasedAuthorization.Data;
 namespace RoleBasedAuthorization.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20210413031210_Added refresh tokens table")]
-    partial class Addedrefreshtokenstable
+    [Migration("20210419040701_Update tb Cart")]
+    partial class UpdatetbCart
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,18 +37,37 @@ namespace RoleBasedAuthorization.Migrations
 
             modelBuilder.Entity("RoleBasedAuthorization.Model.Cart", b =>
                 {
-                    b.Property<int>("cart_id")
+                    b.Property<int>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("product_id")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("quantity")
+                    b.Property<double>("Quantity")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("Request_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("product_image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("product_name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("user_id")
                         .HasColumnType("int");
 
-                    b.HasKey("cart_id");
+                    b.HasKey("CartId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("user_id");
 
                     b.ToTable("Carts");
                 });
@@ -174,6 +193,9 @@ namespace RoleBasedAuthorization.Migrations
                         .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
+                    b.Property<DateTime>("user_exprires_at")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("user_fullname")
                         .IsRequired()
                         .HasColumnType("nvarchar(50)")
@@ -195,6 +217,12 @@ namespace RoleBasedAuthorization.Migrations
                     b.Property<string>("user_picture")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("user_refreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("user_refresh_token_expires_at")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("user_role")
                         .HasColumnType("nvarchar(max)");
 
@@ -209,6 +237,19 @@ namespace RoleBasedAuthorization.Migrations
                     b.HasKey("user_id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RoleBasedAuthorization.Model.Cart", b =>
+                {
+                    b.HasOne("RoleBasedAuthorization.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RoleBasedAuthorization.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("user_id");
                 });
 
             modelBuilder.Entity("RoleBasedAuthorization.Model.RefreshToken", b =>

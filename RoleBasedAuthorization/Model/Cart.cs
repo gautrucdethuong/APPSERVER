@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,13 +9,18 @@ namespace RoleBasedAuthorization.Model
     public class Cart
     {
         [Key]
-        public int cart_id { set; get; }
+        public int CartId { get; set; }
 
-        [ForeignKey("Product")]
-        public int product_id { set; get; }
+        public int? Quantity { get; set; }
 
-        [Required]
-        public int quantity { set; get; }
-       
+        public string UserId { get; set; }
+
+        public int? ProductId { get; set; }
+
+        public DateTime Request_Date { get; set; } = DateTime.Now;
+
+        public virtual Product Product { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

@@ -10,8 +10,8 @@ using RoleBasedAuthorization.Data;
 namespace RoleBasedAuthorization.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20210409090038_addTableReview")]
-    partial class addTableReview
+    [Migration("20210419035820_Chage type quantity tbCart")]
+    partial class ChagetypequantitytbCart
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,18 +37,34 @@ namespace RoleBasedAuthorization.Migrations
 
             modelBuilder.Entity("RoleBasedAuthorization.Model.Cart", b =>
                 {
-                    b.Property<int>("cart_id")
+                    b.Property<int>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("product_id")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("quantity")
+                    b.Property<double>("Quantity")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("Request_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("product_name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("user_id")
                         .HasColumnType("int");
 
-                    b.HasKey("cart_id");
+                    b.HasKey("CartId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("user_id");
 
                     b.ToTable("Carts");
                 });
@@ -90,6 +106,41 @@ namespace RoleBasedAuthorization.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("RoleBasedAuthorization.Model.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JwtId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("RoleBasedAuthorization.Model.Review", b =>
                 {
                     b.Property<int>("ReviewId")
@@ -98,8 +149,7 @@ namespace RoleBasedAuthorization.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(2048)")
-                        .HasMaxLength(2048);
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -140,6 +190,9 @@ namespace RoleBasedAuthorization.Migrations
                         .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
 
+                    b.Property<DateTime>("user_exprires_at")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("user_fullname")
                         .IsRequired()
                         .HasColumnType("nvarchar(50)")
@@ -161,6 +214,12 @@ namespace RoleBasedAuthorization.Migrations
                     b.Property<string>("user_picture")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("user_refreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("user_refresh_token_expires_at")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("user_role")
                         .HasColumnType("nvarchar(max)");
 
@@ -175,6 +234,28 @@ namespace RoleBasedAuthorization.Migrations
                     b.HasKey("user_id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RoleBasedAuthorization.Model.Cart", b =>
+                {
+                    b.HasOne("RoleBasedAuthorization.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RoleBasedAuthorization.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("user_id");
+                });
+
+            modelBuilder.Entity("RoleBasedAuthorization.Model.RefreshToken", b =>
+                {
+                    b.HasOne("RoleBasedAuthorization.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleBasedAuthorization.Model.Review", b =>

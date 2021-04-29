@@ -12,7 +12,6 @@ namespace RoleBasedAuthorization.Model
         [Key]
         public int ReviewId { get; set; }
 
-        //[StringLength(2048, MinimumLength = 2, ErrorMessage = "The minimal length is 2 characters, maximum length is 2048 characters")]
         public string Content { get; set; }
 
         public string UserId { get; set; }

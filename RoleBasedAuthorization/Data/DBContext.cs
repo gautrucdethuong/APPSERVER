@@ -16,12 +16,11 @@ namespace RoleBasedAuthorization.Data
 
         public DbSet<AuthenticateModel> AuthenticateModel { get; set; }
 
-        public DbSet<Cart> Carts { get; set; }
-
         public DbSet<Review> Reviews { get; set; }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        public DbSet<Cart> Carts { get; set; }
 
     }
 }

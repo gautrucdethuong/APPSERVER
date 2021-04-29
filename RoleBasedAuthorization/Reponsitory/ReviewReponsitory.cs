@@ -20,15 +20,18 @@ namespace RoleBasedAuthorization.Reponsitory
 
         // create review post
         public bool CrateReview(Review review) 
-        {       
-            if(db.Users.Any(x => x.user_id.ToString() == review.UserId))
+        {
+            var check = db.Reviews.FirstOrDefault(x => x.ProductId == review.ProductId);
+            if(check != null)
+            {
+                return false;
+            }
+            else
             {
                 db.Add(review);
                 db.SaveChanges();
                 return true;
-            }
-            return false;
-            
+            }            
         }
 
         //delete review post
@@ -66,9 +69,13 @@ namespace RoleBasedAuthorization.Reponsitory
             return review;
         }
 
-        public IEnumerable<Review> GetReviewByIdProduct(int ID_Product)
+        public IEnumerable<Review> GetReviewByIdProduct(int id)
         {
-            return db.Reviews.Where(x => x.ProductId == ID_Product).ToList();
+
+            var list = db.Reviews.FirstOrDefault(x => x.ProductId == id);
+
+            return db.Reviews.Where(x => x.ProductId == id).ToList();
+            
         }
     }
 }

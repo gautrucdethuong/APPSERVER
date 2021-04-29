@@ -37,9 +37,9 @@ namespace RoleBasedAuthorization.Controllers
             var user = _smssender.VerificationOTPLogin(model.otp);
 
             if (user == null)
-
+            {
                 return Json(JsonResultResponse.ResponseFail("Verification failed. Login failed."));
-
+            }
             return Json(JsonResultResponse.ResponseSuccess(user));
         }
     }

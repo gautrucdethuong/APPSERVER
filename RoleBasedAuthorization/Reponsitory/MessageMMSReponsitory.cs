@@ -14,10 +14,7 @@ namespace RoleBasedAuthorization.Reponsitory
         public bool SendMMSMessage()
         {
             //Account SID and Auth Token at twilio.com / console
-            const string accountSid = "AC10b661551dca73f562a3a047523b3217";
-            const string authToken = "b6cf00ac221fa7b4a203d205ef250396";
-
-            TwilioClient.Init(accountSid, authToken);
+            TwilioClient.Init(Constant.accountSid, Constant.authToken);
 
             // create message send user
             var mediaUrl = new[] {
@@ -26,9 +23,9 @@ namespace RoleBasedAuthorization.Reponsitory
 
             MessageResource.Create(
                 body: "Thanks you sign up!",
-                from: new Twilio.Types.PhoneNumber("+17015994809"),
+                from: new Twilio.Types.PhoneNumber(Constant.contactSystems),
                 mediaUrl: mediaUrl,
-                to: new Twilio.Types.PhoneNumber("+840832511369")
+                to: new Twilio.Types.PhoneNumber(Constant.contactCustomer)
             );
             return true;
         }

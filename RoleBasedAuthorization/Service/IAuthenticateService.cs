@@ -1,5 +1,6 @@
 ﻿using RoleBasedAuthorization.DTOs.Requests;
 using RoleBasedAuthorization.Model;
+using System.Threading.Tasks;
 
 namespace RoleBasedAuthorization.Service
 {
@@ -9,6 +10,10 @@ namespace RoleBasedAuthorization.Service
 
         User GenerateJwtToken(User user);
 
-        bool ValidateToken(TokenRequest tokenRequest);
+        string GenerateRefreshToken(User user);
+
+        //bool VerifyToken(TokenRequest tokenRequest);
+
+        //bool ValidateToken(TokenRequest tokenRequest);
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using OAuth2;  
 using RoleBasedAuthorization.Data;
 using RoleBasedAuthorization.Helpers;
 using RoleBasedAuthorization.Reponsitory;
@@ -30,30 +29,27 @@ namespace RoleBasedAuthorization
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-           
+            services.AddMvc();
+
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.UTF8.GetBytes(Constant.Secret);
-
+            // Check validate JWT when request
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,                
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = Constant.Issuer,
+                ValidAudience = Constant.Audiance,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Constant.Secret)),
                 ValidateLifetime = true,
                 RequireExpirationTime = false,
 
-                // Allow to use seconds for expiration of token
                 // Required only when token lifetime less than 5 minutes
-                // THIS ONE
                 ClockSkew = TimeSpan.Zero
             };
-            services.AddSingleton(tokenValidationParameters);
 
             services.AddAuthentication(options =>
             {
@@ -68,9 +64,7 @@ namespace RoleBasedAuthorization
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
-            services.AddMvc();
-            services.AddControllers();
-
+            
             // config connect database
             services.AddDbContextPool<DBContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));

@@ -1,5 +1,4 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using OAuth2;
 using RoleBasedAuthorization.Data;
 using RoleBasedAuthorization.Model;
 using RoleBasedAuthorization.Service;
@@ -28,10 +27,7 @@ namespace RoleBasedAuthorization.Reponsitory
         public bool SMSSendOTPLogin(string phone)
         {
             //Account SID and Auth Token 
-            const string accountSid = "AC10b661551dca73f562a3a047523b3217";
-            const string authToken = "b6cf00ac221fa7b4a203d205ef250396";
-
-            TwilioClient.Init(accountSid, authToken);
+            TwilioClient.Init(Constant.accountSid, Constant.authToken);
 
             int otp = GenerationOTP();
             // check phone exist in db
@@ -44,9 +40,9 @@ namespace RoleBasedAuthorization.Reponsitory
 
                 // Send a sms otp
                 MessageResource.Create(
-                    body: otp.ToString() + " (ma OTP se het han sau 5 phut). Luu y: Tuyet doi khong cung cap ma OTP cua ban vi bat cu ly do gi.",
-                    from: new Twilio.Types.PhoneNumber("+17015994809"),
-                    to: new Twilio.Types.PhoneNumber("+840832511369")
+                    body: otp.ToString() + Constant.SMSMessageLogin,
+                    from: new Twilio.Types.PhoneNumber(Constant.contactSystems),
+                    to: new Twilio.Types.PhoneNumber(Constant.contactCustomer)
                 );
                 return true;
             }
@@ -70,28 +66,8 @@ namespace RoleBasedAuthorization.Reponsitory
                 return null;
             }
             // authentication successfully so generate jwt token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(Constant.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                // create claims
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                        new Claim(ClaimTypes.Name, user.user_fullname),
-                        new Claim(ClaimTypes.Email, user.user_email),
-
-                }),
-
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            // write token
-            user.user_token = tokenHandler.WriteToken(token);
-
-
+            GenerateJwtToken(user);
+            GenerateRefreshToken(user);
 
             return user;
         }
@@ -115,6 +91,71 @@ namespace RoleBasedAuthorization.Reponsitory
             {
                 throw new Exception("Generation OTP failed.");
             }
+        }
+
+
+        private User GenerateJwtToken(User user)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            // We get our secret from the appsettings
+            var key = Encoding.UTF8.GetBytes(Constant.Secret);
+
+            // we define our token descriptor
+            // so it could contain their id, name, email the good part is that these information
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", user.user_id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.UniqueName, user.user_username),
+                    new Claim(JwtRegisteredClaimNames.Email, user.user_email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                }),
+                // the life span of the token needs to be shorter and utilise refresh token to keep the user signedin
+                Expires = DateTime.UtcNow.AddMinutes(15),
+
+                // here we are adding the encryption alogorithim information which will be used to decrypt our token
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
+                Audience = Constant.Audiance,
+                Issuer = Constant.Issuer
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            user.user_token = jwtTokenHandler.WriteToken(token);
+            user.user_exprires_at = (DateTime)tokenDescriptor.Expires;
+
+            return user;
+        }
+
+        //generation refresh token
+        private string GenerateRefreshToken(User user)
+        {
+            var refreshToken = new RefreshToken()
+            {
+                JwtId = Guid.NewGuid().ToString(),
+                IsUsed = false,
+                IsRevoked = false,
+                UserId = user.user_id,
+                AddedDate = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddDays(7),
+                Token = RandomStringRefresh(35) + Guid.NewGuid(),
+
+            };
+            user.user_refreshToken = refreshToken.Token;
+            user.user_refresh_token_expires_at = refreshToken.ExpiryDate;
+
+            db.RefreshTokens.Add(refreshToken);
+            db.SaveChanges();
+            return user.user_refreshToken;
+        }
+
+        // generation random string refresh
+        private string RandomStringRefresh(int lenght)
+        {
+            var random = new Random();
+            var chars = Constant.randomString;
+            return new string(Enumerable.Repeat(chars, lenght).Select(x => x[random.Next(x.Length)]).ToArray());
         }
 
     }

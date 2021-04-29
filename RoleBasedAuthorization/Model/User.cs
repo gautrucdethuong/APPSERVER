@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace RoleBasedAuthorization.Model
 {
@@ -36,7 +37,11 @@ namespace RoleBasedAuthorization.Model
 
         public string user_token { get; set; }
 
+        public DateTime user_exprires_at { get; set; }
+
         public string user_refreshToken { get; set; }
+
+        public DateTime user_refresh_token_expires_at { get; set; }
 
         public string user_otp { get; set; }
 
@@ -45,6 +50,10 @@ namespace RoleBasedAuthorization.Model
 
         [RegularExpression("^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$", ErrorMessage = "Link url incorrect format.")]
         public string user_picture { get; set; }
+
+        
+
+        
 
     }
 }

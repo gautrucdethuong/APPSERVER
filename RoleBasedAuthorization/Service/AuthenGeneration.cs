@@ -1,47 +1,26 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using RoleBasedAuthorization.Data;
 using RoleBasedAuthorization.Model;
-using RoleBasedAuthorization.Service;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
-
-namespace RoleBasedAuthorization.Reponsitory
+namespace RoleBasedAuthorization.Service
 {
-    public class AuthenReponsitory : IAuthenticateService
+    public  class AuthenGeneration
     {
-        private readonly DBContext db;
+        private static DBContext db;
 
-        public AuthenReponsitory(DBContext dbContext)
+        public AuthenGeneration(DBContext dbContext)
         {
             db = dbContext;
         }
-        
-        // generation token
-        public User Login(string username, string password)
-        {
 
-            List<User> users = db.Users.ToList();
-            var user = users.SingleOrDefault(x => x.user_username == username && x.user_password == password);
-
-
-            // return null if user not found
-            if (user == null)
-            {
-                return null;
-            }
-
-            GenerateJwtToken(user);
-            GenerateRefreshToken(user);
-            return user;
-            
-        }
-
-        public User GenerateJwtToken(User user)
+        public static User GenerateJwtToken(User user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
@@ -60,7 +39,7 @@ namespace RoleBasedAuthorization.Reponsitory
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 // the life span of the token needs to be shorter and utilise refresh token to keep the user signedin
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddMinutes(5),
 
                 // here we are adding the encryption alogorithim information which will be used to decrypt our token
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
@@ -76,7 +55,7 @@ namespace RoleBasedAuthorization.Reponsitory
         }
 
         //generation refresh token
-        public string GenerateRefreshToken(User user)
+        public static string GenerateRefreshToken(User user)
         {
             var refreshToken = new RefreshToken()
             {
@@ -98,12 +77,11 @@ namespace RoleBasedAuthorization.Reponsitory
         }
 
         // generation random string refresh
-        private string RandomStringRefresh(int lenght)
+        private static string RandomStringRefresh(int lenght)
         {
             var random = new Random();
-            var chars = Constant.randomString;
+            var chars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             return new string(Enumerable.Repeat(chars, lenght).Select(x => x[random.Next(x.Length)]).ToArray());
         }
-
     }
 }
